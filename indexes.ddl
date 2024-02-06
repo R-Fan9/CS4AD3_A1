@@ -1,4 +1,4 @@
-connect to db4ad3
+connect to db4ad3;
 
 CREATE INDEX idx_Sell_vendorID ON Sell(vendorID);
 CREATE INDEX idx_ProductBelongToSubcategory_productID ON ProductBelongToSubcategory(productID);
