@@ -1,0 +1,237 @@
+# of attendees = 218
+# of category contain subcategory = 15
+# of has (attendee has passcard) = 209
+# of keynote speaker = 12
+# of listen to (attendee listen to keynote speaker) = 151
+# of passcard = 209
+# of person = 249
+# of product = 523
+# of product belong to subcategory = 423
+# of product category = 6
+# of product subcategory = 15
+# of product trials (attendee trial product) = 65
+# of sell (vendors sell products) = 523
+# of talk (vendors talk to attendees) = 115
+# of transaction = 224
+# of vendors (companies) = 15
+# of vendor representatives = 21
+# of warranty = 224
+# of with (product with warranty) = 224
+
+TOP 6 non-primary key indexes:
+ - CREATE INDEX idx_Sell_vendorID ON Sell(vendorID)
+	- query 5
+	- query 6 (a, b)
+	- vendorID has lower cardinality than productID, but vendorID is used in both query 5 and 6
+
+ - CREATE INDEX idx_ProductBelongToSubcategory_productID ON ProductBelongToSubcategory (productID)
+	- query 5
+	- query 12
+	- productSubcategoryID has lower cardinality than productID
+	- more buskets, less collisions
+	- Advantages:
+		- Reduced memory footprint: Fewer buckets mean less storage overhead.
+		- Potentially faster lookups: With fewer buckets, the lookup process may be more direct.
+	- Challenges:
+		- Collisions: With low cardinality, the likelihood of hash collisions increases, as multiple distinct values may hash to the same bucket.
+		- Impact on performance: Collisions can impact performance, and handling collisions adds complexity to the index structure.
+
+ - CREATE INDEX idx_Transaction_Date_VendorID ON Transaction (Date, vendorID)
+ - transaction
+	- query 4
+		- Date
+		- Paymentmethod
+	- query 7 (a, b)
+		- Date
+		- vendorID
+	- query 11
+		- attendeeID
+		- Date
+
+ - CREATE INDEX idx_ProductTrial_minutesTried ON ProductTrial(minutesTried) CLUSTER
+ - productTrial CLUSTERED on minutes tried
+	- query 10 (a, b)
+		- minutes tried
+
+ - CREATE INDEX idx_Product_price ON Product(price) CLUSTER
+ - product CLUSTERED on price
+	- query 1
+		- price
+
+ - CREATE INDEX idx_Person_dateOfBirth ON Person(dateOfBirth)
+ - person 
+	- query 2
+		- dateOfBirth
+		- postalCode
+	- query 8
+		- dateOfBirth
+		- first name
+		- last name
+
+ - CREATE INDEX idx_ListenTo_attendeeID ON ListenTO(attendeeID)
+ - listenTo on attendeeID
+	- query 9
+		- attendeeID
+
+
+
+
+
+
+ - CREATE CLUSTERED INDEX idx_Transaction_vendorID_date_quantity ON Transaction (vendorID, Date, quantity)
+ - CREATE CLUSTERED INDEX idx_Transaction_vendorID_date_quantity ON Transaction (vendorID, Date, ammount)
+
+
+ - CREATE INDEX idx_Transaction_attendeeID_Date ON Transaction USING HASH (Date, attendeeID)
+ - CREATE INDEX idx_Transaction_paymenthod_date ON Transaction (paymentMethod, Date)
+	- only 3 distinct date
+	- only 3 distinct payment method
+	- might not be beneficial to keep this index
+
+
+
+index 1:
+ - CREATE CLUSTERED INDEX idx_product_price ON Product (price)
+
+index 2:
+ - CREATE UNIQUE INDEX idx_Person_id ON Person USING HASH (personId)
+ - CREATE UNIQUE INDEX idx_Attendee_id ON Attendee USING HASH (ID)
+	- No need to create
+		- Attendee table has a foreign key reference to the Person table on the ID column
+		- When you perform queries on the Attendee table based on the ID column, the database optimizer can use the existing index on the referenced Person table to efficiently locate the corresponding rows.
+ - CREATE CLUSTERED INDEX idx_Person_dateOfBirth ON Person (dateOfBirth)
+
+index 3:
+ - CREATE UNIQUE INDEX idx_Product_Warranty_Extended ON With USING HASH (productID, warrantyID, type)
+
+index 4:
+ - CREATE INDEX idx_Transaction_paymenthod_date ON Transaction (paymentMethod, Date)
+
+index 5:
+ - CREATE UNIQUE INDEX idx_Sell ON Sell USING HASH (vendorID, productID)
+ - CREATE UNIQUE INDEX idx_ProductBelongToSubcategory ON ProductBelongToSubcategory USING HASH (productID, productSubcategoryID)
+ - CREATE UNIQUE INDEX idx_ProductSubcategory_name ON ProductSubcategory USING HASH (name)
+	- there are only 15 product subcategories, we prolly dont need to create an index for this
+
+
+index 6:
+# of vendors (companies) = 15
+# of sell (vendors sell products) = 523
+
+ - CREATE INDEX idx_Vendor_ID_name ON Vendor (ID, name)
+ 	- can't use primary key
+	- only 15 vendors, prolly no need to create an index for this
+ -  CREATE INDEX idx_Sell_vendorID ON Sell (vendorID)
+
+index 7:
+# of transaction = 224
+
+ - CREATE CLUSTERED INDEX idx_Transaction_vendorID_date_quantity ON Transaction (vendorID, Date, quantity)
+ - CREATE CLUSTERED INDEX idx_Transaction_vendorID_date_quantity ON Transaction (vendorID, Date, ammount)
+
+index 8:
+ - CREATE INDEX idx_Person_firstName_lastName_dateOfBirth ON Person USING HASH (dateOfBirth, lastName, firstName)
+
+index 9:
+ - CREATE INDEX idx_KeynoteSpeaker_areaOfExperties ON Person USING HASH (areaOfExpertise)
+	- there are only 12 keynote speakers with 9 distinct area of experties, prolly not too beneficial to create an index for this
+ - CREATE INDEX idx_ListenTo_attendeeID_keynoteSpeakerID ON ListenTo USING HASH (attendeeID, keynoteSpeakerID)
+
+index 10: 
+ - CREATE CLUSTERED INDEX idx_ProductTrial_minutesTried ON ProductTrial (minutesTried)
+
+index 11:
+ - Index-Only plan?
+ - CREATE INDEX idx_Transaction_attendeeID_Date ON Transaction USING HASH (Date, attendID)
+
+index 12:
+ - CREATE UNIQUE INDEX idx_ProductBelongToSubcategory ON ProductBelongToSubcategory USING HASH (productID, productSubcategoryID)
+ - CREATE UNIQUE INDEX idx_ProductSubcategory_name ON ProductSubcategory USING HASH (name)
+	- there are only 15 product subcategories, we prolly dont need to create an index for this
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+query 1:
+ - product 
+	- price 
+		- 950 < price < 1000
+
+query 2:
+ - attendee
+ 	- postal code
+		- start with 'N'
+ 	- date of birth
+		- date > 1990
+
+query 3:
+ - product warranty
+	- type is 'Extended'
+
+query 4:
+ - transaction (sales per day)
+	- payment method
+		- 'credit' or 'debit'
+
+query 5:
+ - vendor
+	- sell
+		- product belong to subcategory
+			- product subcategory
+				- 'LED'
+
+query 6:
+  - vendor
+	- sell
+		- number of distinct products (a)
+		- number of distinct products > 35 (b)
+
+query 7:
+ - vendor
+	- transaction
+		- sold >10 products per day (a)
+		- had $5000 monetary sales per day (b)
+
+query 8:
+ - person
+	- person who have the same birthday as another person
+
+query 9:
+ - attendee
+	- listen to
+		- keynote speaker
+			- expert in 'Smartphones' or 'Wearable Technology'
+
+query 10:
+ - product
+	- attendee
+		- did product trial (a)
+		- purchsed the prodcut (a)
+		- did product trial >= 10 mins (b)
+		- did not purchase the prodcut
+
+query 11:
+ - person
+	- transaction
+		- purchased product every day (April 2 - 4, 2014)
+
+query 12:
+ - product subcategory, total sales
+	- product
+		- product belong to subcategory
+			- tranaction
+
+
+
+
+		

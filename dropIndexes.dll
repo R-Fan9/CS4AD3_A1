@@ -1,0 +1,9 @@
+connect to db4ad3;
+
+DROP INDEX idx_Sell_vendorID;
+DROP INDEX idx_ProductBelongToSubcategory_productID;
+DROP INDEX idx_Transaction_Date_VendorID;
+DROP INDEX idx_ProductTrial_minutesTried;
+DROP INDEX idx_Product_price;
+DROP INDEX idx_Person_dateOfBirth;
+DROP INDEX idx_ListenTo_attendeeID;
