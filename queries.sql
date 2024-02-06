@@ -39,7 +39,7 @@ from SELL s, VENDOR v
 where v.ID = s.vendorID
 GROUP BY v.name;
 
---6b  From the query above, list the vendors that sell greater than 35products. Again, group your results by vendor name.
+--6b  From the query above, list the vendors that sell greater than 35 products. Again, group your results by vendor name.
 
 select v.name, count(*)
 from SELL s, VENDOR v

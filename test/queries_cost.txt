@@ -1,0 +1,92 @@
+query 9:
+ - cost: 189.821
+
+query 8:
+ - cost: 176.337
+ - cost (with index): 54.490
+	- CREATE INDEX idx_Person_dateOfBirth_first_last_name ON Person(dateOfBirth, firstname, lastname);
+	- index-only plan
+ - improvement: 121.847
+
+query 11:
+ - cost: 149.428
+ - cost (with index): 124.715
+	- CREATE INDEX idx_Transaction ON Transaction(attendeeId, date);
+	- almost index-only plan
+- improvement: 24.713
+
+query 10(a):
+ - cost: 105.387
+ - cost (with index): 91.853
+	- CREATE INDEX idx_Transaction_attendeeId_productId ON Transaction(attendeeId, productId);
+ - improvement: 13.534
+
+
+query 10(b):
+ - cost: 103.375
+ - cost (with index): 89.825
+	- CREATE INDEX idx_Transaction_attendeeId_productId ON Transaction(attendeeId, productId);
+ - improvement: 13.55
+
+query 1:
+ - cost: 91.896
+ - cost (with index): 20.549
+	- CREATE INDEX idx_Product_price ON Product(price) CLUSTER;
+ - improvement: 71.347
+
+query 2:
+ - cost: 88.159
+ - cost (with index): 35.042
+	- CREATE INDEX idx_Person_dateOfBirth_first_last_name ON Person(dateOfBirth, firstname, lastname);
+ - improvement: 53.117
+
+query 5:
+ - cost: 61.270
+
+query 12:
+ - cost: 60.983
+ - cost (with index): 33.888
+	- CREATE INDEX idx_Transaction_productId_ammount ON Transaction(productId, amount);
+ - improvement: 27.095
+
+query 3:
+ - cost: 40.847
+ - cost (with index): 29.327
+	- CREATE INDEX idx_Warranty_type ON Warranty(type);
+ - improvement: 11.52
+
+query 7(b):
+ - cost: 33.985
+
+query 7(a):
+ - cost: 33.984
+
+query 6(a):
+ - cost: 27.302
+ - cost (with index): 20.536
+	- CREATE INDEX idx_Sell_vendorID ON Sell(vendorID);
+ - improvement: 6.766
+
+query 6(b):
+ - cost: 27.302
+ - cost (with index): 20.536
+	- CREATE INDEX idx_Sell_vendorID ON Sell(vendorID);
+ - improvement: 6.766
+
+query 4:
+ - cost: 27.156
+ - cost (with index): 13.610
+	- CREATE INDEX idx_Transaction_date_paymentMethod_amount ON Transaction(date, paymentMethod, amount);
+	- index-only plan
+ - improvement: 13.546
+
+
+
+
+
+
+
+
+
+
+
